@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "name": "DATASTAX_CASSANDRA",
+  "version": "3.5.0",
+  "setActiveSymlink": true,
+
+  "depends": "",
+  "replaces": "",
+  "conflicts": "",
+
+  "provides": [
+		"cassandra"
+	],
+
+  "scripts": {
+    "defines": "cassandra_env.sh"
+  },
+
+  "packages": [],
+
+  "components": [
+    { "name"       : "cassandra",
+      "version"    : "3.5.0"
+    }
+  ],
+
+  "users": {
+    "cassandra": {
+      "longname"    : "Cassandra user",
+      "home"        : "/var/lib/cassandra",
+      "shell"       : "/bin/bash",
+      "extra_groups": [ "cassandra" ]
+    }
+  },
+
+  "groups": [
+    "cassandra"
+  ]
+}

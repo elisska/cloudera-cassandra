@@ -1,0 +1,18 @@
+{
+    "parcels": [
+        {
+            "replaces": "",
+            "hash": "58c906d563cf34bbf78f321f53478caa8a2a9d1b",
+            "depends": "",
+            "components": [
+                {
+                    "version": "2.2.6",
+                    "name": "cassandra"
+                }
+            ],
+            "conflicts": "",
+            "parcelName": "DATASTAX_CASSANDRA-2.2.6-el6.parcel"
+        }
+    ],
+    "lastUpdated": 1464262712218
+}

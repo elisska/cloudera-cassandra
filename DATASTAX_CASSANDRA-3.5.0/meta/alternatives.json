@@ -1,0 +1,20 @@
+{
+    "cqlsh": {
+      "destination": "/usr/bin/cqlsh",
+      "source": "bin/cqlsh",
+      "priority": 10,
+      "isDirectory": false
+    },
+    "nodetool": {
+      "destination": "/usr/bin/nodetool",
+      "source": "bin/nodetool",
+      "priority": 10,
+      "isDirectory": false
+    },
+    "cassandra-conf": {
+      "destination": "/etc/cassandra/conf",
+      "source": "conf",
+      "priority": 10,
+      "isDirectory": true
+    }
+}

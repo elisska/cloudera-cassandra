@@ -1,0 +1,600 @@
+{
+   "name" : "DATASTAX_CASSANDRA",
+   "label" : "Cassandra",
+   "description" : "Cassandra NoSQL database",
+   "maxInstances" : 1,
+   "version" : "1.0",
+      "runAs" : {
+         "user" : "root",
+         "group" : "root"
+      },
+  
+   "parcel" : {
+   		"requiredTags" : [ "cassandra" ]
+   },
+
+   "parameters": [
+		{
+                                "name": "cluster_name",
+                                "label": "Cassandra Cluster Name",
+                                "description": "The name of the cluster. This is mainly used to prevent machines in one logical cluster from joining another.",
+                                "required": "true",
+                                "type": "string",
+                                "default": "'Cassandra development cluster'",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "num_tokens",
+                                "label": "Number of Tokens",
+                                "description": "This defines the number of tokens randomly assigned to this node on the ring. The more tokens, relative to other nodes, the larger the proportion of data that this node will store. You probably want all nodes to have the same number of tokens assuming they have equal hardware capability. If you leave this unspecified, Cassandra will use the default of 1 token for legacy compatibility, and will use the initial_token as described below. Specifying initial_token will override this setting on the node's initial start, on subsequent starts, this setting will apply even if initial token is set. If you already have a cluster with 1 token per node, and wish to migrate to multiple tokens per node, see http://wiki.apache.org/cassandra/Operations.",
+                                "required": "true",
+                                "type": "long",
+                                "default": "256"
+                            },   
+			    {
+                                "name": "authenticator",
+                                "label": "Cassandra Authenticator",
+                                "description": "Authentication backend, implementing IAuthenticator; used to identify users. Out of the box, Cassandra provides org.apache.cassandra.auth.{AllowAllAuthenticator, PasswordAuthenticator}. AllowAllAuthenticator performs no checks - set it to disable authentication. PasswordAuthenticator relies on username/password pairs to authenticate users. It keeps usernames and hashed passwords in system_auth.credentials table. Please increase system_auth keyspace replication factor if you use this authenticator. If using PasswordAuthenticator, CassandraRoleManager must also be used.",
+                                "required": "true",
+                                "type": "string_enum",
+				"validValues": ["AllowAllAuthenticator", "PasswordAuthenticator"],
+                                "default": "AllowAllAuthenticator"
+                            },
+			    {
+                                "name": "authorizer",
+                                "label": "Cassandra Authorizer",
+                                "description": "Authorization backend, implementing IAuthorizer; used to limit access/provide permissions. Out of the box, Cassandra provides org.apache.cassandra.auth.{AllowAllAuthorizer, CassandraAuthorizer}. AllowAllAuthorizer allows any action to any user - set it to disable authorization. CassandraAuthorizer stores permissions in system_auth.permissions table. Please increase system_auth keyspace replication factor if you use this authorizer.",
+                                "required": "true",
+                                "type": "string_enum",
+				"validValues": ["AllowAllAuthorizer", "CassandraAuthorizer"],
+                                "default": "AllowAllAuthorizer"
+                            },
+			    {                                
+				"name": "role_manager",
+                                "label": "Cassandra Role Manager",
+                                "description": "Part of the Authentication & Authorization backend, implementing IRoleManager; used to maintain grants and memberships between roles. Out of the box, Cassandra provides org.apache.cassandra.auth.CassandraRoleManager, which stores role information in the system_auth keyspace. Most functions of the IRoleManager require an authenticated login, so unless the configured IAuthenticator actually implements authentication, most of this functionality will be unavailable. CassandraRoleManager stores role data in the system_auth keyspace. Please increase system_auth keyspace replication factor if you use this role manager.",
+                                "required": "false",
+                                "type": "string_enum",
+				"validValues": ["CassandraRoleManager"],
+                                "default": "CassandraRoleManager"
+                            },
+			    {
+                                "name": "partitioner",
+                                "label": "Cassandra Partitioner",
+                                "description": "The partitioner is responsible for distributing groups of rows (by partition key) across nodes in the cluster. The partitioner can NOT be changed without reloading all data, so when upgrading you should set this to the same partitioner you were already using. Besides Murmur3Partitioner, partitioners included for backwards compatibility include RandomPartitioner, ByteOrderedPartitioner, and OrderPreservingPartitioner.",
+                                "required": "true",
+                                "type": "string_enum",
+				"validValues": [
+						"org.apache.cassandra.dht.Murmur3Partitioner", 
+						"org.apache.cassandra.dht.RandomPartitioner",
+						"org.apache.cassandra.dht.ByteOrderedPartitioner",
+						"org.apache.cassandra.dht.OrderPreservingPartitioner"
+						],
+                                "default": "org.apache.cassandra.dht.Murmur3Partitioner",
+                                "configurableInWizard" : "true"
+                            },                    
+			    {
+                                "name": "seed_provider",
+                                "label": "Cassandra Seed Provider",
+                                "description": "Any class that implements the SeedProvider interface and has a constructor that takes a Map<String, String> of parameters will do.",
+                                "required": "false",
+                                "type": "string",
+				"default": "org.apache.cassandra.locator.SimpleSeedProvider"
+                            },
+			    {
+                                "name": "endpoint_snitch",
+                                "label": "Cassandra Endpoint Snitch",
+                                "description": "Set this to a class that implements IEndpointSnitch.  The snitch has two functions: 1) it teaches Cassandra enough about your network topology to route requests efficiently. 2) it allows Cassandra to spread replicas around your cluster to avoid correlated failures. It does this by grouping machines into 'datacenters' and 'racks'. Cassandra will do its best not to have more than one replica on the same 'rack' (which may not actually be a physical location). IF YOU CHANGE THE SNITCH AFTER DATA IS INSERTED INTO THE CLUSTER, YOU MUST RUN A FULL REPAIR, SINCE THE SNITCH AFFECTS WHERE REPLICAS ARE PLACED. IF THE RACK A REPLICA IS PLACED IN CHANGES AFTER THE REPLICA HAS BEEN ADDED TO A RING, THE NODE MUST BE DECOMMISSIONED AND REBOOTSTRAPPED.",
+                                "required": "true",
+                                "type": "string_enum",
+				"validValues": [
+						"SimpleSnitch", 
+						"GossipingPropertyFileSnitch",
+						"PropertyFileSnitch",
+						"Ec2Snitch",
+						"Ec2MultiRegionSnitch",
+						"RackInferringSnitch"
+						],
+				"default": "GossipingPropertyFileSnitch",
+                                "configurableInWizard" : "true"
+                            }
+	         ],
+  
+	"gateway" : {
+	  "alternatives" : {
+	    "name" : "cassandra-conf",
+	    "linkRoot" : "/etc/cassandra",
+	    "priority" : 50
+	  },
+	  "scriptRunner" : {
+	    "program" : "scripts/cassandra_control.sh",
+	    "args" : ["deploy"],
+				"environmentVariables" : {
+							"CLIENT_CONFIG_DIR" : "cassandra-conf",
+							"SEEDS_FILE" : "seeds",
+							"SEED_PROVIDER" : "${seed_provider}"
+							 }
+	  },
+	  "configWriter" : {
+				    	"generators" : [
+						      {
+							"filename" : "cassandra.yaml",
+							"configFormat" : "properties",
+							"excludedParams" : ["seed_provider"]
+						      }
+						    ],
+					"peerConfigGenerators" : [
+					       {
+						 "filename" : "seeds",
+						 "params" : ["seed_provider"],
+						 "roleName" : "CASSANDRA_SEED_NODE"
+						}
+					     ],
+					"auxConfigGenerators" : [
+					       {
+						 "filename" : "cassandra-conf/cassandra-env.sh",
+						 "sourceFilename" : "aux/cassandra-env.sh"
+					       },
+					       {
+						 "filename" : "cassandra-conf/cassandra-rackdc.properties",
+						 "sourceFilename" : "aux/cassandra-rackdc.properties"
+					       },
+					       {
+						 "filename" : "cassandra-conf/cassandra-topology.properties",
+						 "sourceFilename" : "aux/cassandra-topology.properties"
+					       }
+				     ]
+				  }
+	 },
+
+   "roles" : [
+	  {
+	  	"name" : "CASSANDRA_SEED_NODE",
+		"label" : "Cassandra Seed Node",
+		"pluralLabel" : "Cassandra Seed Nodes",
+		"topology" : {
+			      "minInstances" : "1"
+			    },
+		"logging" : {
+			      "dir" : "/var/log/cassandra",
+			      "filename" : "cassandra_seed_node.log",
+			      "modifiable" : true
+	    		    },
+		"startRunner" : {
+			 	"program" : "scripts/cassandra_control.sh",
+	      			"args" : [ "start" ],
+				"environmentVariables" : {
+							"CASSANDRA_USER" : "${user}",
+							"CASSANDRA_DATA_DIR" : "${data_file_directories}",
+							"CASSANDRA_COMMITLOG_DIR" : "${commitlog_directory}",
+							"CASSANDRA_SAVED_CACHES_DIR" : "${saved_caches_directory}",
+							"SEEDS_FILE" : "seeds",
+							"SEED_PROVIDER" : "${seed_provider}",
+							"CASSANDRA_LOG_DIR" : "${log_dir}"
+							 }
+		  	        },
+		"parameters": [
+			    {
+                                "name": "local_jmx",
+                                "label": "Use Local JMX",
+                                "description": "Weather to use local JMX server listening on localhost or not.",
+                                "required": "true",
+                                "type": "string",
+                                "default": "no"
+                            },
+			    {
+                                "name": "jmx_authentication",
+                                "label": "Weather to use JMX authentication",
+                                "description": "Weather to use JMX authentication or not. Passed as an environment variable to cassandra-env.sh",
+                                "required": "true",
+                                "type": "string",
+                                "default": "false"
+                            },			    
+			    {
+                                "name": "data_file_directories",
+                                "label": "Cassandra Data File Directory",
+                                "description": "Directories where Cassandra should store data on disk. Cassandra will spread data evenly across them, subject to the granularity of the configured compaction strategy.",
+                                "required": "true",
+                                "type": "path",
+				"pathType" : "localDataDir",
+                                "default": "/data/cassandra/datafiles",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "commitlog_directory",
+                                "label": "Cassandra Commit Log Directory",
+                                "description": "Cassandra commit log directory. When running on magnetic HDD, this should be a separate spindle than the data directories.",
+                                "required": "true",
+                                "type": "path",
+				"pathType" : "localDataDir",
+                                "default": "/data/cassandra/commitlog",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "saved_caches_directory",
+                                "label": "Cassandra Saved Caches Directory",
+                                "description": "The directory to store Cassandra saved caches.",
+                                "required": "true",
+                                "type": "path",
+				"pathType" : "localDataDir",
+                                "default": "/data/cassandra/saved_caches",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "start_native_transport",
+                                "label": "Start Native Transport?",
+                                "description": "Whether to start the native transport server. Please note that the address on which the native transport is bound is the same as the rpc_address. The port however is different and specified below.",
+                                "required": "true",
+                                "type": "string",
+                                "default": "true"
+                            },
+			    {
+                                "name": "native_transport_port",
+                                "label": "Native Transport Port",
+                                "description": "Port for the CQL native transport to listen for clients on For security reasons, you should not expose this port to the internet.  Firewall it if needed.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "9042"
+                            },
+			    {
+                                "name": "listen_address",
+                                "label": "Cassandra Listen Address",
+                                "description": "The IP addreenss or hostname that Cassandra binds to for connecting to other Cassandra nodes. Set this parameter or listen_interface, not both. You must change the default setting for multiple nodes to communicate: 1) Generally set to empty. If the node is properly configured (host name, name resolution, and so on), Cassandra uses InetAddress.getLocalHost() to get the local address from the system. 2) For a single node cluster, you can use the default setting (localhost). 3) If Cassandra can't find the correct address, you must specify the IP address or host name. 4) Never specify 0.0.0.0; it is always wrong.",
+                                "required": "true",
+                                "type": "string",
+				"default": ""
+                            },
+			    {
+                                "name": "listen_interface",
+                                "label": "Cassandra Listen Interface",
+                                "description": "The interface that Cassandra binds to for connecting to other Cassandra nodes. Interfaces must correspond to a single address, IP aliasing is not supported..",
+                                "required": "false",
+                                "type": "string"
+                            },
+			    {
+                                "name": "start_rpc",
+                                "label": "Whether to start the thrift rpc server",
+                                "description": "Whether to start the thrift rpc server.",
+                                "required": "true",
+                                "type": "string",
+				"default": "true"
+                            },
+			    {
+                                "name": "rpc_port",
+                                "label": "RPC Port",
+                                "description": "Port for Thrift to listen for clients on.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "9160"
+                            },
+			    {
+                                "name": "storage_port",
+                                "label": "Storage Port",
+                                "description": "TCP port, for commands and data For security reasons, you should not expose this port to the internet.  Firewall it if needed.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "7000"
+                            },
+			    {
+                                "name": "ssl_storage_port",
+                                "label": "SSL Storage Port",
+                                "description": "SSL port, for encrypted communication.  Unused unless enabled in encryption_options. For security reasons, you should not expose this port to the internet.  Firewall it if needed.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "7001"
+                            },
+			    {
+                                "name": "rpc_address",
+                                "label": "RPC Address",
+                                "description": "The listen address for client connections (Thrift RPC service and native transport). Valid values are: 1) unset: resolves the address using the hostname configuration of the node. If left unset, the hostname must resolve to the IP address of this node using /etc/hostname, /etc/hosts, or DNS. 2) 0.0.0.0: Listens on all configured interfaces, but you must set the broadcast_rpc_address to a value other than 0.0.0.0. 3) IP address 4) hostname.",
+                                "required": "true",
+                                "type": "string",
+				"default": ""
+                            },
+			    {
+                                "name": "broadcast_rpc_address",
+                                "label": "Broadcast RPC Address",
+                                "description": "RPC address to broadcast to drivers and other Cassandra nodes. This cannot be set to 0.0.0.0. If left blank, this will be set to the value of rpc_address. If rpc_address is set to 0.0.0.0, broadcast_rpc_address must be set",
+                                "required": "true",
+                                "type": "string",
+				"default": ""
+                            },
+                            {
+                                "name": "commitlog_sync",
+                                "label": "Commit Log Sync",
+                                "description": "The method that Cassandra uses to acknowledge writes in milliseconds",
+                                "required": "true",
+                                "type": "string_enum",
+                                "validValues": [
+                                                "periodic",
+                                                "batch"
+                                                ],
+                                "default": "periodic"
+                            },
+			    {
+                                "name": "commitlog_sync_period_in_ms",
+                                "label": "Commit Log Sync Period",
+                                "description": "Period in milliseconds",
+                                "required": "false",
+                                "type": "long",
+				"unit" : "seconds",
+				"default": "10"
+                            },
+			    {
+                                "name": "commitlog_sync_batch_window_in_ms",
+                                "label": "Commit Log Sync Batch Window",
+                                "description": "Period in milliseconds",
+                                "required": "false",
+                                "type": "long",
+				"unit" : "milliseconds"
+                            }
+			      ],		
+		"configWriter" : {
+				    	"generators" : [
+						      {
+							"filename" : "cassandra.yaml",
+							"configFormat" : "properties",
+							"excludedParams" : ["seed_provider", "log_dir", "local_jmx", "jmx_authentication" ]
+						      }
+						    ],
+					"peerConfigGenerators" : [
+					       {
+						 "filename" : "seeds",
+						 "params" : ["seed_provider"],
+						 "roleName" : "CASSANDRA_SEED_NODE"
+						}
+					     ],
+					"auxConfigGenerators" : [
+					       {
+						 "filename" : "cassandra-env.sh",
+						 "sourceFilename" : "aux/cassandra-env.sh"
+					       },
+					       {
+						 "filename" : "cassandra-rackdc.properties",
+						 "sourceFilename" : "aux/cassandra-rackdc.properties"
+					       },
+					       {
+						 "filename" : "cassandra-topology.properties",
+						 "sourceFilename" : "aux/cassandra-topology.properties"
+					       }
+				     ]
+				  }
+	  },  
+	  {
+		"name" : "CASSANDRA_NODE",
+		"label" : "Cassandra Node",
+		"pluralLabel" : "Cassandra Nodes",
+		"topology" : {
+			      "minInstances" : "0"
+			    },
+
+		"logging" : {
+			      "dir" : "/var/log/cassandra",
+			      "filename" : "cassandra_node.log",
+			      "modifiable" : true
+	    		    },
+		"startRunner" : {
+			 	"program" : "scripts/cassandra_control.sh",
+	      			"args" : [ "start" ],
+				"environmentVariables" : {
+							"CASSANDRA_USER" : "${user}",
+							"CASSANDRA_DATA_DIR" : "${data_file_directories}",
+							"CASSANDRA_COMMITLOG_DIR" : "${commitlog_directory}",
+							"CASSANDRA_SAVED_CACHES_DIR" : "${saved_caches_directory}",
+							"SEEDS_FILE" : "seeds",
+							"SEED_PROVIDER" : "${seed_provider}",
+							"CASSANDRA_LOG_DIR" : "${log_dir}"
+							 }
+		  	        },
+		"parameters": [
+			    {
+                                "name": "auto_bootstrap",
+                                "label": "Cassandra Auto Bootstrap",
+                                "description": "This setting has been removed from default configuration. It makes new (non-seed) nodes automatically migrate the right data to themselves. When initializing a fresh cluster without data, add auto_bootstrap: false..",
+                                "required": "true",
+                                "type": "string",
+				"default": "false",
+				"configurableInWizard" : "true"
+                            },
+			     {
+                                "name": "local_jmx",
+                                "label": "Use Local JMX",
+                                "description": "Weather to use local JMX server listening on localhost or not.",
+                                "required": "true",
+                                "type": "string",
+                                "default": "no"
+                            },
+			    {
+                                "name": "jmx_authentication",
+                                "label": "Weather to use JMX authentication",
+                                "description": "Weather to use JMX authentication or not. Passed as an environment variable to cassandra-env.sh",
+                                "required": "true",
+                                "type": "string",
+                                "default": "false"
+                            },
+			    {
+                                "name": "data_file_directories",
+                                "label": "Cassandra Data File Directory",
+                                "description": "Directories where Cassandra should store data on disk. Cassandra will spread data evenly across them, subject to the granularity of the configured compaction strategy.",
+                                "required": "true",
+                                "type": "path",
+				"pathType" : "localDataDir",
+                                "default": "/data/cassandra/datafiles",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "commitlog_directory",
+                                "label": "Cassandra Commit Log Directory",
+                                "description": "Cassandra commit log directory. When running on magnetic HDD, this should be a separate spindle than the data directories.",
+                                "required": "true",
+                                "type": "path",
+				"pathType" : "localDataDir",
+                                "default": "/data/cassandra/commitlog",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "saved_caches_directory",
+                                "label": "Cassandra Saved Caches Directory",
+                                "description": "The directory to store Cassandra saved caches.",
+                                "required": "true",
+                                "type": "path",
+				"pathType" : "localDataDir",
+                                "default": "/data/cassandra/saved_caches",
+                                "configurableInWizard" : "true"
+                            },
+			    {
+                                "name": "start_native_transport",
+                                "label": "Start Native Transport?",
+                                "description": "Whether to start the native transport server. Please note that the address on which the native transport is bound is the same as the rpc_address. The port however is different and specified below.",
+                                "required": "true",
+                                "type": "string",
+                                "default": "true"
+                            },
+			    {
+                                "name": "native_transport_port",
+                                "label": "Native Transport Port",
+                                "description": "Port for the CQL native transport to listen for clients on For security reasons, you should not expose this port to the internet.  Firewall it if needed.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "9042"
+                            },
+			    {
+                                "name": "listen_address",
+                                "label": "Cassandra Listen Address",
+                                "description": "The IP addreenss or hostname that Cassandra binds to for connecting to other Cassandra nodes. Set this parameter or listen_interface, not both. You must change the default setting for multiple nodes to communicate: 1) Generally set to empty. If the node is properly configured (host name, name resolution, and so on), Cassandra uses InetAddress.getLocalHost() to get the local address from the system. 2) For a single node cluster, you can use the default setting (localhost). 3) If Cassandra can't find the correct address, you must specify the IP address or host name. 4) Never specify 0.0.0.0; it is always wrong.",
+                                "required": "true",
+                                "type": "string",
+				"default": ""
+                            },
+			    {
+                                "name": "listen_interface",
+                                "label": "Cassandra Listen Interface",
+                                "description": "The interface that Cassandra binds to for connecting to other Cassandra nodes. Interfaces must correspond to a single address, IP aliasing is not supported..",
+                                "required": "false",
+                                "type": "string"
+                            },
+			    {
+                                "name": "start_rpc",
+                                "label": "Whether to start the thrift rpc server",
+                                "description": "Whether to start the thrift rpc server.",
+                                "required": "true",
+                                "type": "string",
+				"default": "true"
+                            },
+			    {
+                                "name": "rpc_port",
+                                "label": "RPC Port",
+                                "description": "Port for Thrift to listen for clients on.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "9160"
+                            },
+			    {
+                                "name": "storage_port",
+                                "label": "Storage Port",
+                                "description": "TCP port, for commands and data For security reasons, you should not expose this port to the internet.  Firewall it if needed.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "7000"
+                            },
+			    {
+                                "name": "ssl_storage_port",
+                                "label": "SSL Storage Port",
+                                "description": "SSL port, for encrypted communication.  Unused unless enabled in encryption_options. For security reasons, you should not expose this port to the internet.  Firewall it if needed.",
+                                "required": "true",
+                                "type": "port",
+                                "default": "7001"
+                            },
+			    {
+                                "name": "rpc_address",
+                                "label": "RPC Address",
+                                "description": "The listen address for client connections (Thrift RPC service and native transport). Valid values are: 1) unset: resolves the address using the hostname configuration of the node. If left unset, the hostname must resolve to the IP address of this node using /etc/hostname, /etc/hosts, or DNS. 2) 0.0.0.0: Listens on all configured interfaces, but you must set the broadcast_rpc_address to a value other than 0.0.0.0. 3) IP address 4) hostname.",
+                                "required": "true",
+                                "type": "string",
+				"default": ""
+                            },
+			    {
+                                "name": "broadcast_rpc_address",
+                                "label": "Broadcast RPC Address",
+                                "description": "RPC address to broadcast to drivers and other Cassandra nodes. This cannot be set to 0.0.0.0. If left blank, this will be set to the value of rpc_address. If rpc_address is set to 0.0.0.0, broadcast_rpc_address must be set",
+                                "required": "true",
+                                "type": "string",
+				"default": ""
+                            },
+			    {
+                                "name": "commitlog_sync",
+                                "label": "Commit Log Sync",
+                                "description": "The method that Cassandra uses to acknowledge writes in milliseconds",
+                                "required": "true",
+                                "type": "string_enum",
+				"validValues": [
+						"periodic", 
+						"batch"
+						],
+				"default": "periodic"
+                            },
+			    {
+                                "name": "commitlog_sync_period_in_ms",
+                                "label": "Commit Log Sync Period",
+                                "description": "Period in milliseconds",
+                                "required": "false",
+                                "type": "long",
+				"unit" : "seconds",
+				"default": "10"
+                            },
+			    {
+                                "name": "commitlog_sync_batch_window_in_ms",
+                                "label": "Commit Log Sync Batch Window",
+                                "description": "Period in milliseconds",
+                                "required": "false",
+                                "type": "long",
+				"unit" : "milliseconds"
+                            }
+			      ],				
+		"configWriter" : {
+				    "generators" : [
+						      {
+							"filename" : "cassandra.yaml",
+							"configFormat" : "properties",
+							"excludedParams" : ["seed_provider", "log_dir", "local_jmx", "jmx_authentication"]
+						      }
+						    ],
+				    "peerConfigGenerators" : [
+					       {
+						 "filename" : "seeds",
+						 "params" : ["seed_provider"],
+						 "roleName" : "CASSANDRA_SEED_NODE"
+						}
+					     ],
+				    "auxConfigGenerators" : [
+					       {
+						 "filename" : "cassandra-env.sh",
+						 "sourceFilename" : "aux/cassandra-env.sh"
+					       },
+					       {
+						 "filename" : "cassandra-rackdc.properties",
+						 "sourceFilename" : "aux/cassandra-rackdc.properties"
+					       },
+					       {
+						 "filename" : "cassandra-topology.properties",
+						 "sourceFilename" : "aux/cassandra-topology.properties"
+					       }
+				     ]
+				  }
+	   }
+	],
+"rollingRestart": {
+    "nonWorkerSteps": [
+      {
+        "roleName": "CASSANDRA_SEED_NODE",
+        "bringUpCommands": [ "Start" ],
+        "bringDownCommands": [ "Stop" ]
+      },
+      {
+        "roleName": "CASSANDRA_NODE",
+        "bringUpCommands": [ "Start" ],
+        "bringDownCommands": [ "Stop" ]
+      }
+    ]
+  }
+}

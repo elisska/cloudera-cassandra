@@ -1,0 +1,109 @@
+#!/bin/sh
+
+ZIP_VERSION=
+if [ "$1" = "1.0.4" ]; then
+  ZIP_VERSION=1.0.4.1
+else
+  if [ "$1" = "1.0.5" ]; then
+    ZIP_VERSION=1.0.5
+  fi
+fi
+
+IS_DSE=0
+INST_ROOT=
+if [ -f cassandra/lib/snappy-java-1.0.4.1.jar.zip ]; then
+  INST_ROOT=`pwd`
+  IS_DSE=1
+else
+  if [ -f resources/cassandra/lib/snappy-java-1.0.4.1.jar.zip ]; then
+    INST_ROOT=`pwd`/resources
+    IS_DSE=1
+  else
+    if [ -f /usr/share/dse/resources/cassandra/lib/snappy-java-1.0.4.1.jar.zip ]; then
+      INST_ROOT=/usr/share/dse/resources
+      IS_DSE=1
+    else
+      if [ -f /usr/share/dse/cassandra/lib/snappy-java-1.0.4.1.jar.zip ]; then
+        INST_ROOT=/usr/share/dse
+        IS_DSE=1
+      else
+        if [ -f lib/snappy-java-1.0.4.1.jar.zip ]; then
+          INST_ROOT=`pwd`
+        else
+          if [ -f /usr/share/cassandra/lib/snappy-java-1.0.4.1.jar.zip ]; then
+            INST_ROOT=/usr/share/cassandra
+          fi
+        fi
+      fi
+    fi
+  fi
+fi
+
+if [ "$ZIP_VERSION" = "" ]; then
+  echo This script will enable either 1.0.4 or 1.0.5 snappy jar files. This
+  echo is needed because Snappy 1.0.5 will not run on old version of Linux
+  echo due to clib mismach issues.
+  echo
+  echo Please specify what version of snappy to set up:
+  echo 1.0.4
+  echo 1.0.5
+  if [ "$INST_ROOT" != "" ]; then
+    echo
+    echo found these snappy zip files
+    find $INST_ROOT -name \*snappy\*.zip -print
+    echo
+    echo found these snappy jar files
+    find $INST_ROOT -name \*snappy-java\*.jar -print
+  fi
+  exit 0
+fi
+  
+if [ "$INST_ROOT" = "" ]; then
+  echo Unable to demtermine location of installation. Please
+  echo run the script from the installation root.
+  exit 1
+fi
+echo install: $INST_ROOT
+
+if [ "$IS_DSE" = "1" ]; then
+  if [ ! -f "$INST_ROOT"/cassandra/lib/snappy-java-1.0.5.jar.zip ]; then
+    echo Unable to locate 1.0.5 zip file in "$INST_ROOT"/cassandra/lib/
+    exit 1
+  fi
+else
+  if [ ! -f "$INST_ROOT"/lib/snappy-java-1.0.5.jar.zip ]; then
+    echo Unable to locate 1.0.5 zip file in "$INST_ROOT"/lib/
+    exit 1
+  fi
+fi
+ 
+if [ "$IS_DSE" = "1" ]; then
+  cd "$INST_ROOT"/cassandra/lib/
+  rm -f snappy-java-*.jar
+  unzip -o "$INST_ROOT"/cassandra/lib/snappy-java-$ZIP_VERSION.jar.zip
+  chmod a+x snappy*.jar
+  chown cassandra: snappy*.jar
+  cd "$INST_ROOT"/hadoop/lib/
+  rm -f snappy-java-*.jar
+  unzip -o "$INST_ROOT"/cassandra/lib/snappy-java-$ZIP_VERSION.jar.zip
+  chmod a+x snappy*.jar
+  chown cassandra: snappy*.jar
+  cd "$INST_ROOT"/hive/lib/
+  rm -f snappy-java-*.jar
+  unzip -o "$INST_ROOT"/cassandra/lib/snappy-java-$ZIP_VERSION.jar.zip
+  chmod a+x snappy*.jar
+  chown cassandra: snappy*.jar
+  cd "$INST_ROOT"/pig/lib/
+  rm -f snappy-java-*.jar
+  unzip -o "$INST_ROOT"/cassandra/lib/snappy-java-$ZIP_VERSION.jar.zip
+  chmod a+x snappy*.jar
+  chown cassandra: snappy*.jar
+else
+  cd "$INST_ROOT"/lib/
+  rm -f snappy-java-*.jar
+  unzip -o "$INST_ROOT"/lib/snappy-java-$ZIP_VERSION.jar.zip
+  chmod a+x snappy*.jar
+  chown cassandra: snappy*.jar
+fi
+exit 0
+

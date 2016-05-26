@@ -1,0 +1,2 @@
+#!/bin/bash
+export CASSANDRA_HOME=$PARCELS_ROOT/$PARCEL_DIRNAME
