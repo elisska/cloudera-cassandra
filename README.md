@@ -43,12 +43,13 @@ parcel version.
 
 1. Rolling Cassandra start - start seeds one by one, wait for seeds to start, start rest of nodes
 2. Rolling restart - done in service.sdl but requires Cloudera Enterprise license
-3. Add Max heap and New Size JVM options
-4. Add gracefull service stop
-5. Add JMX security settings for using JXM not only on localhost
-6. Add Cassandra ring status and health checks as separate commands
-7. Add parameters for multi-datacenter and cross-rack support (now there is a hardcode to dc1 and rack1)
-8. Add optional command to bootstrap individual nodes
-9. Add optional command to clear data directories on individual nodes, etc.
+3. Node decommissionin
+4. Remove node from a cluster
+5. Add Max heap and New Size JVM options
+6. Add gracefull service stop
+7. Add JMX security settings for using JXM not only on localhost
+8. Add Cassandra ring status and health checks as separate commands
+9. Add parameters for multi-datacenter and cross-rack support (now there is a hardcode to dc1 and rack1)
+10. Add optional command to bootstrap individual nodes
  
 ### Your contribution is highly appreciated!!!
