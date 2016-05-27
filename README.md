@@ -28,13 +28,7 @@ parcel version.
 2. Copy the CSD jar (`DATASTAX-CASSANDRA-1.0.jar`) to CM host at `/opt/cloudera/csd/` and change the ownership of the jar to `﻿cloudera-scm:cloudera-scm`
 3. Restart CM `service cloudera-scm-server restart`
 4. Restart _Cloudera Management Service_ from the CM UI.
-5. Install the Cassandra service with _Add a service_ option in CM (note that some workaround in the cluster installation is needed as for now since this is a POC version):
-  * add and start 1 seed node
-  * go to Service - Instances - then add remaining seeds and non-seed nodes, but do not start them
-  * restart started seed node
-  * add nodes ONE BY ONE!!!! (auto_bootstrap=true by default)
-  * add gateways needed
-  * go to command line and run nodetool status or nodetool ring to check the cluster health
+5. Install the Cassandra service with _Add a service_ option in CM (note that some workaround in the cluster installation is needed as for now - **you may add only 1 seed during initial service startup**)
 
 **Note**: Step 3 and 4 can be avoided by using the 
 [experimental](https://github.com/cloudera/cm_ext/wiki/CSD-Developer-Tricks-and-Tools#partial-installation-development-mode-only) api for installing CSDs without restarting CM.
