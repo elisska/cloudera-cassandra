@@ -14,7 +14,7 @@ This is a POC version of managing Cassandra cluster via Cloudera Manager.
 
 ## Instructions
 
-Tested on CentOS 6.5, Cloudeta Manager 5.6.0, Datastax Cassandra 2.2.6.
+Tested on CentOS 6.5, Cloudeta Manager 5.6.0 (newer versions like 5.7 etc not tested), Datastax Cassandra 2.2.6.
 
 ### Parcel
 1. Create the DATASTAX\_CASSANDRA parcel: `./build_parcel.sh <Version> <Distro>`. Example: `./build_parcel.sh 2.2.6 el6`
